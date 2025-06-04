@@ -25,15 +25,64 @@
                 class="bg-gradient-to-b from-purple-500 to-purple-400 p-6 rounded-2xl shadow-lg border border-purple-400 transition hover:scale-105 hover-sfx">
                 <h3 class="text-xl font-extrabold mb-3 text-center text-white uppercase tracking-wider">🏆 Achievements</h3>
                 <div class="grid grid-cols-3 gap-2">
-                    @foreach ($achievements as $achievement)
-                        <div
-                            class="flex flex-col items-center bg-white p-3 rounded-xl shadow-md border border-purple-300 transition hover:scale-110">
+                    @foreach ($allAchievements as $achievement)
+                        @php
+                            $pivotData = $student->achievements->firstWhere('id', $achievement->id)?->pivot;
+                            $isUnlocked = !is_null($pivotData);
+                            $unlockedAt = $pivotData?->unlocked_at
+                                ? \Carbon\Carbon::parse($pivotData->unlocked_at)->format('F j, Y \a\t H:i')
+                                : null;
+                        @endphp
+
+                        <div onclick="showModal(
+            '{{ asset('storage/' . $achievement->icon) }}',
+            '{{ $achievement->name }}',
+            '{{ $achievement->description }}',
+            {{ $isUnlocked ? 'true' : 'false' }},
+            '{{ $unlockedAt ?? '' }}'
+        )"
+                            class="flex flex-col items-center p-3 rounded-xl shadow-md border transition hover:scale-110 cursor-pointer
+        {{ $isUnlocked ? 'bg-white border-purple-300' : 'bg-gray-100 border-gray-300 opacity-50 grayscale' }}">
                             <img src="{{ asset('storage/' . $achievement->icon) }}" class="w-14 h-14">
-                            <p class="text-sm text-center mt-1 text-purple-900 font-semibold">{{ $achievement->name }}</p>
                         </div>
                     @endforeach
+
+
                 </div>
                 <a href="#" class="text-white mt-3 text-center block font-semibold hover:underline">See More</a>
+            </div>
+
+            <!-- Achievement Modal -->
+            <div id="achievementModal"
+                class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50 transition duration-300 ease-out">
+                <div
+                    class="relative bg-gradient-to-br from-purple-100 to-white p-6 rounded-2xl shadow-2xl w-[90%] max-w-md border border-purple-200 scale-100 animate-fadeIn">
+
+                    <!-- Close Button -->
+                    <button onclick="closeModal()"
+                        class="absolute -top-3 -right-3 bg-white rounded-full shadow-md w-8 h-8 flex items-center justify-center text-purple-500 hover:bg-purple-100 hover:text-red-500 transition text-lg font-bold">
+                        &times;
+                    </button>
+
+                    <!-- Achievement Icon -->
+                    <div class="flex justify-center">
+                        <div
+                            class="w-24 h-24 bg-white rounded-full shadow-inner border-4 border-purple-300 flex items-center justify-center overflow-hidden">
+                            <img id="modalIcon" src="" alt="Achievement Icon" class="w-20 h-20 object-contain">
+                        </div>
+                    </div>
+
+                    <!-- Text Content -->
+                    <h4 id="modalName"
+                        class="text-xl font-extrabold text-purple-800 mt-4 tracking-wide uppercase text-center"></h4>
+                    <p id="modalDescription" class="text-gray-700 text-sm mt-2 px-2 leading-relaxed text-center"></p>
+
+                    <div id="modalStatus"
+                        class="mt-4 px-4 py-2 text-xs rounded-full inline-block
+               font-medium tracking-wide
+               bg-purple-200 text-purple-700">
+                    </div>
+                </div>
             </div>
 
             <!-- Current Challenge & XP -->
@@ -44,7 +93,8 @@
                     <h3 class="text-xl font-extrabold text-yellow-500">📖 Current Challenge</h3>
                     <div class="flex items-center justify-center mt-3">
                         <span class="text-3xl">🏆</span>
-                        <p class="ml-1 font-semibold text-yellow-500">Section {{ $student->currentSection?->name ?? 'X' }} -
+                        <p class="ml-1 font-semibold text-yellow-500">Section {{ $student->currentSection?->name ?? 'X' }}
+                            -
                             {{ $student->current_challenge_id ?? 'X' }}</p>
                     </div>
                     <p class="text-gray-500 text-sm text-center mt-2">
@@ -285,6 +335,25 @@
     <audio id="hover-sound" src="{{ asset('sfx/hover.mp3') }}"></audio>
     <audio id="click-sound" src="{{ asset('sfx/click.mp3') }}"></audio>
     <script>
+        function showModal(icon, name, description, isUnlocked, unlockedAt) {
+            document.getElementById('modalIcon').src = icon;
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalDescription').innerText = description;
+            document.getElementById('modalStatus').innerText = isUnlocked ?
+                `Unlocked at: ${unlockedAt}` :
+                '🔒 Not unlocked yet';
+
+            const modal = document.getElementById('achievementModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('achievementModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
         function playClick() {
             const audio = document.getElementById("click-sound");
             if (audio) {

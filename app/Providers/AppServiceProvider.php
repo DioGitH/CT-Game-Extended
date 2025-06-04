@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schedule;
-use App\Models\Student;
+use App\Models\ChallengeResult;
+use App\Observers\ChallengeResultObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        
+        ChallengeResult::observe(ChallengeResultObserver::class);
     }
 }

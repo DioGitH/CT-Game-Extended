@@ -11,8 +11,8 @@ class Achievement extends Model
         'description',
     ];
 
-    public function student()
+    public function students()
     {
-        return $this->belongsToMany(Student::class, 'student_achievements');
+        return $this->belongsToMany(Student::class, 'student_achievements')->withPivot('unlocked_at');
     }
 }

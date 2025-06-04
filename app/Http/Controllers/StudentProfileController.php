@@ -17,10 +17,8 @@ class StudentProfileController extends Controller
         $student = Student::where('user_id', $user->id)->first();
         $studentSection = auth()->user()->student()->with('currentSection')->first();
 
-        $achievements = Achievement::join('student_achievement', 'achievements.id', '=', 'student_achievement.achievement_id')
-            ->where('student_achievement.student_id', $student->id)
-            ->select('achievements.*')
-            ->get();
+        $allAchievements = Achievement::all();
+        $unlockedAchievementIds = $student->achievements->pluck('id')->toArray();
 
         $leaderboard = Student::join('users', 'students.user_id', '=', 'users.id')
             ->orderByDesc('students.weekly_score')
@@ -30,7 +28,14 @@ class StudentProfileController extends Controller
 
         $rank = Student::where('weekly_score', '>', (int) $student->weekly_score)->count() + 1;
 
-        return view('student.profile.index', compact('user', 'student', 'achievements', 'leaderboard', 'rank'));
+        return view('student.profile.index', compact(
+            'user',
+            'student',
+            'leaderboard',
+            'rank',
+            'allAchievements',
+            'unlockedAchievementIds'
+        ));
     }
 
     /**
@@ -49,7 +54,7 @@ class StudentProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $user = auth()->user(); 
+        $user = auth()->user();
         $student = $user->student;
 
         // Validasi Data

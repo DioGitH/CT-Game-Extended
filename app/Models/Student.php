@@ -81,9 +81,10 @@ class Student extends Model
         return $this->belongsTo(Section::class, 'current_section_id');
     }
 
-    public function achievement()
+    public function achievements()
     {
-        return $this->belongsToMany(Achievement::class, 'student_achievements');
+        return $this->belongsToMany(Achievement::class, 'student_achievement')
+            ->withPivot('unlocked_at');
     }
 
     public function answers()

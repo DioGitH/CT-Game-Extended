@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('student_achievement', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('achievement_id')->constrained()->onDelete('cascade');
-            $table->date('received_at')->nullable();
-            $table->primary(['student_id', 'achievement_id']);
+            $table->timestamp('unlocked_at')->nullable();
             $table->timestamps();
         });
     }
