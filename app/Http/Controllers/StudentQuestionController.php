@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\StudentAnswer;
 use App\Models\ChallengeResult;
+use App\Models\LogFocus;
+use Carbon\Carbon;
+
 
 class StudentQuestionController extends Controller
 {
@@ -337,6 +340,30 @@ class StudentQuestionController extends Controller
         $user->student->updateRank();
 
         return view('student.challenge_summary', compact('challengeResult', 'motivasiBenar', 'motivasiSalah', 'isPerfect'));
+    }
+
+    public function saveLogFocus(Request $request)
+    {
+        $user = auth()->user();
+        $challengeResult = ChallengeResult::findOrFail($request->challengeresult_id);
+
+        try {
+            foreach ($request->logs as $log) {
+                LogFocus::create([
+                    'user_id' => $user->id,
+                    'challengeresult_id' => $challengeResult->id,
+                    'duration' => $log['duration'],
+                    'start_at' => Carbon::createFromFormat('Y-m-d\TH:i:s.u', $log['start']),
+                    'end_at' => Carbon::createFromFormat('Y-m-d\TH:i:s.u', $log['end']),
+                ]);
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan log', 'error' => $e->getMessage()], 500);
+        }
+        return response()->noContent();
     }
 
     public function updateLives()

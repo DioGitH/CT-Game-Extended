@@ -33,4 +33,9 @@ class ChallengeResult extends Model
     {
         return $this->belongsTo(Challenge::class);
     }
+
+    public function logFocus()
+    {
+        return $this->hasMany(LogFocus::class, 'challengeresult_id');
+    }
 }

@@ -101,112 +101,118 @@
     <audio id="sfx-correct" src="{{ asset('sfx/correct.mp3') }}"></audio>
     <audio id="sfx-wrong" src="{{ asset('sfx/wrong.mp3') }}"></audio>
     <div class="content max-w-3xl w-full bg-white shadow-xl rounded-lg p-6 relative neon-border fadeIn overflow-y-auto">
-        <!-- Lives Counter -->
-        <div class="flex justify-center items-center mt-4">
-            <span class="text-red-500 text-2xl font-bold mr-2">❤️</span>
-            <p id="lives-count" class="text-xl font-bold text-red-400">Lives: ...</p>
-        </div>
-
-        <!-- Tombol X (Exit) -->
-        <button onclick="modalExit()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl">
-            ✖
-        </button>
-
-        <!-- Progress Bar -->
-        <div class="w-full bg-gray-300 rounded-full h-3 mt-6 overflow-hidden">
-            <div id="progress-bar" class="progress-bar h-3 rounded-full" style="width: {{ $progress }}%;"></div>
-        </div>
-
-        <!-- Question Description -->
-        <p class="mt-4 text-gray-800 font-medium text-center text-lg">
-            {!! nl2br(e($question->description)) !!}
-        </p>
-
-        <!-- Question Image -->
-        @if ($question->question_image)
-            <div class="flex justify-center my-4">
-                <img src="{{ asset('storage/' . $question->question_image) }}" class="max-h-48 rounded-lg shadow-lg">
-            </div>
-        @endif
-
-        <!-- Question Text -->
-        <p class="text-lg font-bold text-yellow-500 mt-6">Tantangan:</p>
-        <p class="text-xl font-extrabold text-center text-yellow-600 mt-2">{!! nl2br(e($question->question_text)) !!}</p>
-
-        <!-- Soal Multiple Choice -->
-        @if ($question->type == 'multiple_choice')
-            @php
-                $correctCount = $question->answers->where('is_correct', 1)->count();
-            @endphp
-
-            <div class="grid grid-cols-2 gap-4 mt-6">
-                @foreach ($question->answers as $answer)
-                    @if ($correctCount > 1)
-                        <!-- Checkbox-style (multiple answers allowed) -->
-                        <button onclick="toggleMultiAnswer(this, {{ $answer->id }})"
-                            class="answer-btn-multi bg-gray-200 text-gray-800 p-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition transform hover:scale-105 shadow-lg">
-                            @if ($answer->answer_image)
-                                <img src="{{ asset('storage/' . $answer->answer_image) }}" alt="answer image"
-                                    class="max-h-20 w-auto mx-auto mb-2">
-                            @endif
-                            {{ $answer->answer }}
-                        </button>
-                    @else
-                        <!-- Radio-style (only one answer) -->
-                        <button onclick="checkAnswer({{ $answer->id }}, {{ $answer->is_correct }})"
-                            class="answer-btn bg-gray-200 text-gray-800 p-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition transform hover:scale-105 shadow-lg">
-                            @if ($answer->answer_image)
-                                <img src="{{ asset('storage/' . $answer->answer_image) }}" alt="answer image"
-                                    class="max-h-20 w-auto mx-auto mb-2">
-                            @endif
-                            {{ $answer->answer }}
-                        </button>
-                    @endif
-                @endforeach
+            <!-- Lives Counter -->
+            <div class="flex justify-center items-center mt-4">
+                <span class="text-red-500 text-2xl font-bold mr-2">❤️</span>
+                <p id="lives-count" class="text-xl font-bold text-red-400">Lives: ...</p>
             </div>
 
-            @if ($correctCount > 1)
-                <button onclick="submitMultiAnswer()" id="check-btn-multi"
-                    class="mt-4 hidden bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-400 transition">✅
-                    Submit Answer</button>
+            <!-- Tombol X (Exit) -->
+            <button onclick="modalExit()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl">
+                ✖
+            </button>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-300 rounded-full h-3 mt-6 overflow-hidden">
+                <div id="progress-bar" class="progress-bar h-3 rounded-full" style="width: {{ $progress }}%;"></div>
+            </div>
+
+            <!-- Question Description -->
+            <p class="mt-4 text-gray-800 font-medium text-center text-lg">
+                {!! nl2br(e($question->description)) !!}
+            </p>
+
+            <!-- Question Image -->
+            @if ($question->question_image)
+                <div class="flex justify-center my-4">
+                    <img src="{{ asset('storage/' . $question->question_image) }}" class="max-h-48 rounded-lg shadow-lg">
+                </div>
             @endif
-        @endif
 
-        <!-- **Jenis Soal: True/False** -->
-        @if ($question->type == 'true_false')
-            <div class="grid grid-cols-2 gap-4 mt-6">
-                <button onclick="checkAnswer('true', {{ $question->correct_answer == 'true' ? 1 : 0 }})"
-                    class="answer-btn bg-green-600 text-white p-4 rounded-lg text-lg font-semibold hover:bg-green-800 transition transform hover:scale-105 shadow-lg">
-                    ✅ True
-                </button>
-                <button onclick="checkAnswer('false', {{ $question->correct_answer == 'false' ? 1 : 0 }})"
-                    class="answer-btn bg-red-600 text-white p-4 rounded-lg text-lg font-semibold hover:bg-red-800 transition transform hover:scale-105 shadow-lg">
-                    ❌ False
-                </button>
-            </div>
-        @endif
+            <!-- Question Text -->
+            <p class="text-lg font-bold text-yellow-500 mt-6">Tantangan:</p>
+            <p class="text-xl font-extrabold text-center text-yellow-600 mt-2">{!! nl2br(e($question->question_text)) !!}</p>
 
-        <!-- **Jenis Soal: Essay** -->
-        @if ($question->type == 'essay')
-            <div class="mt-6">
-                <textarea id="essay-answer" class="w-full border border-gray-500 bg-gray-200 text-gray-800 p-3 rounded-lg"
-                    placeholder="Type your answer here..."></textarea>
-                <button onclick="checkEssayAnswer({{ $question->id }})"
-                    class="bg-blue-500 text-white px-6 py-3 mt-3 rounded-lg shadow-md hover:bg-blue-400 transition transform hover:scale-105">
-                    ✅ Submit Answer
-                </button>
-            </div>
-        @endif
+            <!-- Soal Multiple Choice -->
+            @if ($question->type == 'multiple_choice')
+                @php
+                    $correctCount = $question->answers->where('is_correct', 1)->count();
+                @endphp
 
-        <!-- Result Message -->
-        <div id="result-message" class="mt-4 hidden text-white p-3 rounded-lg text-lg text-center popUp"></div>
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    @foreach ($question->answers as $answer)
+                        @if ($correctCount > 1)
+                            <!-- Checkbox-style (multiple answers allowed) -->
+                            <button onclick="toggleMultiAnswer(this, {{ $answer->id }})"
+                                class="answer-btn-multi bg-gray-200 text-gray-800 p-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition transform hover:scale-105 shadow-lg">
+                                @if ($answer->answer_image)
+                                    <img src="{{ asset('storage/' . $answer->answer_image) }}" alt="answer image"
+                                        class="max-h-20 w-auto mx-auto mb-2">
+                                @endif
+                                {{ $answer->answer }}
+                            </button>
+                        @else
+                            <!-- Radio-style (only one answer) -->
+                            <button onclick="checkAnswer({{ $answer->id }}, {{ $answer->is_correct }})"
+                                class="answer-btn bg-gray-200 text-gray-800 p-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition transform hover:scale-105 shadow-lg">
+                                @if ($answer->answer_image)
+                                    <img src="{{ asset('storage/' . $answer->answer_image) }}" alt="answer image"
+                                        class="max-h-20 w-auto mx-auto mb-2">
+                                @endif
+                                {{ $answer->answer }}
+                            </button>
+                        @endif
+                    @endforeach
+                </div>
 
-        <!-- Tombol Next Question -->
-        <button id="next-btn" onclick="nextQuestion()"
-            class="hidden bg-purple-500 text-white px-6 py-3 mt-3 rounded-lg shadow-md hover:bg-purple-400 transition transform hover:scale-110">
-            ➡️ Continue
-        </button>
-    </div>
+                @if ($correctCount > 1)
+                    <button onclick="submitMultiAnswer()" id="check-btn-multi"
+                        class="mt-4 hidden bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-400 transition">✅
+                        Submit Answer</button>
+                @endif
+            @endif
+
+            <!-- **Jenis Soal: True/False** -->
+            @if ($question->type == 'true_false')
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <button onclick="checkAnswer('true', {{ $question->correct_answer == 'true' ? 1 : 0 }})"
+                        class="answer-btn bg-green-600 text-white p-4 rounded-lg text-lg font-semibold hover:bg-green-800 transition transform hover:scale-105 shadow-lg">
+                        ✅ True
+                    </button>
+                    <button onclick="checkAnswer('false', {{ $question->correct_answer == 'false' ? 1 : 0 }})"
+                        class="answer-btn bg-red-600 text-white p-4 rounded-lg text-lg font-semibold hover:bg-red-800 transition transform hover:scale-105 shadow-lg">
+                        ❌ False
+                    </button>
+                </div>
+            @endif
+
+            <!-- **Jenis Soal: Essay** -->
+            @if ($question->type == 'essay')
+                <div class="mt-6">
+                    <textarea id="essay-answer" class="w-full border border-gray-500 bg-gray-200 text-gray-800 p-3 rounded-lg"
+                        placeholder="Type your answer here..."></textarea>
+                    <button onclick="checkEssayAnswer({{ $question->id }})"
+                        class="bg-blue-500 text-white px-6 py-3 mt-3 rounded-lg shadow-md hover:bg-blue-400 transition transform hover:scale-105">
+                        ✅ Submit Answer
+                    </button>
+                </div>
+            @endif
+
+            <!-- Result Message -->
+            <div id="result-message" class="mt-4 hidden text-white p-3 rounded-lg text-lg text-center popUp"></div>
+
+            <!-- Tombol Next Question -->
+            <button id="next-btn" onclick="nextQuestion()"
+                class="hidden bg-purple-500 text-white px-6 py-3 mt-3 rounded-lg shadow-md hover:bg-purple-400 transition transform hover:scale-110">
+                ➡️ Continue
+            </button>
+        </div>
+        <!-- Realtime Focus Detection Section -->
+        <div class="absolute top-6 right-12 flex flex-col items-center bg-white rounded-lg overflow-hidden neon-border">
+            {{-- <video id="video" autoplay muted playsinline width="320" height="240" class="rounded-md shadow-md border border-gray-300"></video> --}}
+            <div id="my_camera" class="rounded-lg shadow-md"></div>
+            <p id="focus-status" class="mt-2 text-md font-bold text-gray-700">Status Fokus: <span class="text-yellow-500">Mendeteksi...</span></p>
+        </div>
 
     <!-- **Modal Konfirmasi Keluar** -->
     <div id="exit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -248,6 +254,60 @@
     </div>
 
     <!-- **Script Handling** -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.min.js"></script>
+
+    <script>
+        const socket = io("{{ env('WS_CONNECTION') }}"); // ganti ke URL backend Flask kamu
+        const username = @json(auth()->user()->name);
+
+        // Setup webcam
+        Webcam.set({
+            width: 240,
+            height: 180,
+            image_format: 'jpeg',
+            jpeg_quality: 60
+        });
+        Webcam.attach('#my_camera');
+
+        // Tunggu sampai webcam siap
+        Webcam.on('live', function () {
+            console.log("✅ Webcam sudah aktif");
+
+            // Kirim username ke backend
+            socket.emit('register_username', { username });
+
+            // Kirim frame setiap 0.5 detik
+            setInterval(() => {
+                Webcam.snap(function (data_uri) {
+                    socket.emit('frame_camera', {
+                        frame: data_uri
+                    });
+                });
+            }, 300);
+        });
+
+        Webcam.on('error', function (err) {
+            console.error("🚫 Gagal mengakses kamera:", err);
+        });
+
+        // Menerima status fokus
+        socket.on('receive_status', (data) => {
+            const statusElem = document.getElementById("focus-status");
+            if (data.focused) {
+                statusElem.innerHTML = 'Status Fokus: <span class="text-green-600">Fokus ✅</span>';
+            } else {
+                statusElem.innerHTML = 'Status Fokus: <span class="text-red-600">Tidak Fokus ❌</span>';
+            }
+        });
+
+        // Peringatan tidak fokus
+        socket.on("not_focused_warning", (data) => {
+            data = data.message;
+            alert(data);
+        });
+    </script>
     <script>
         function playSound(id) {
             const audio = document.getElementById(id);
@@ -310,7 +370,9 @@
                     $('#check-btn-multi').text("Submitted ✅");
 
                     if (data.lives !== undefined && data.lives <= 0) {
+                        socket.emit('stop_camera', {})
                         $("#out-of-lives-modal").removeClass("hidden");
+                        
 
                         // Redirect otomatis setelah beberapa detik
                         setTimeout(() => {
@@ -397,6 +459,7 @@
                     nextButton.removeClass("hidden");
 
                     if (data.lives !== undefined && data.lives <= 0) {
+                        socket.emit('stop_camera', {})
                         $("#out-of-lives-modal").removeClass("hidden");
                         setTimeout(() => {
                             window.location.href = "{{ route('student.mission.index') }}";
@@ -451,7 +514,9 @@
                         'opacity-50 cursor-not-allowed');
                     $('button[onclick^="checkEssayAnswer"]').text("Submitted ✅");
                     if (data.lives !== undefined && data.lives <= 0) {
+                        socket.emit('stop_camera', {})
                         $("#out-of-lives-modal").removeClass("hidden");
+                        
 
                         // Redirect otomatis setelah beberapa detik
                         setTimeout(() => {
@@ -480,6 +545,7 @@
 
         function confirmExit() {
             let challengeId = "{{ $question->challenge_id }}";
+            socket.emit('stop_camera', {})
 
             $.ajax({
                 url: "{{ route('student.question.exit') }}",

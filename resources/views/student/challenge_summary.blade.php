@@ -15,6 +15,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <link rel="icon" type="image/png" href="{{ asset('storage/icons/game.png') }}">
     <title>Challenge Summary</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -101,6 +103,29 @@
             @endif
         </div>
     </div>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("{{ env('WS_CONNECTION') }}");
+        const username = @json(auth()->user()->name);
+
+        socket.emit('register_username', { username });
+        socket.emit('stop_camera', {})
+        const challengeresult_id = "{{ $challengeResult->id }}";
+
+        socket.on('session_summary', (data) => {
+            fetch("{{ route('student.challange.logFocus') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                },
+                body: JSON.stringify({
+                    challengeresult_id: challengeresult_id,
+                    logs: data.unfocused_timestamps,
+                })
+            })
+        });
+    </script>
 
 </body>
 

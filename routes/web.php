@@ -86,12 +86,14 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->group(function (
     Route::get('/student/check-lives', [StudentQuestionController::class, 'checkLives'])->name('student.check.lives');
     Route::post('/update-lives', [StudentQuestionController::class, 'updateLives'])->name('student.update.lives');
     Route::get('/challenge/{challenge_id}/summary/{attempt_number}', [StudentQuestionController::class, 'challengeSummary'])->name('student.challenge.summary');
+    Route::post('/challenge/summary/log-focus', [StudentQuestionController::class, 'saveLogFocus'])->name('student.challange.logFocus');
     Route::post('/student/question/exit', [StudentQuestionController::class, 'exitChallenge'])->name('student.question.exit');
     Route::get('/rank-up/{challenge_id}/{attempt_number}', function ($challenge_id, $attempt_number) {
         $student = auth()->user()->student;
         return view('student.rank_up', compact('student', 'challenge_id', 'attempt_number'));
     })->name('student.rank.up')->middleware('auth');
 });
+
 
 // LECTURER ROUTES
 Route::middleware(['auth', 'role:lecturer'])->prefix('lecturer')->group(function () {
