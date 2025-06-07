@@ -78,6 +78,26 @@
             </div>
         </div>
 
+        <!-- Log Fokus -->
+        <div class=" bg-sky-950 p-1.5 rounded-lg mt-3 rounded-b-none">
+            <p class="text-sm text-gray-300">Log Tidak Fokus</p>
+        </div>
+        <div class="grid grid-cols-2 gap-x-1 gap-y-0">
+            <div class="bg-sky-900 p-1.5 rounded-lg rounded-t-none">
+                <p class="text-sm">Jumlah</p>
+                <p id="unfocused-count" class="text-xs font-semibold"></p>
+            </div>
+            <div class="bg-sky-900 p-1.5 rounded-lg rounded-t-none">
+                <p class="text-sm">Total Durasi</p>
+                <p id="total-duration" class="text-xs font-semibold">0 min 0 sec</p>
+            </div>
+        </div>
+        <div class="bg-sky-900 p-1.5 rounded-lg mt-1">
+            <p class="text-sm text-gray-300">History Log</p>
+            <p id="unfocused-timestamps" class="text-xs text-pink-400"></p>
+        </div>
+        
+
         <!-- Pesan -->
         <p class="mt-4 text-sm text-gray-300 font-semibold">
             {{ $pesan }}
@@ -124,6 +144,27 @@
                     logs: data.unfocused_timestamps,
                 })
             })
+
+
+            const unfocused_count = data.unfocused_count;
+            const total_unfocused_duration = data.total_unfocused_duration;
+            const unfocused_timestamps = data.unfocused_timestamps;
+
+            // Display the unfocused timestamps in the blade with improved formatting
+            const timestampsContainer = document.getElementById('unfocused-timestamps');
+            timestampsContainer.innerHTML = unfocused_timestamps.map(entry => {
+                const start = new Date(entry.start).toLocaleTimeString('en-US', { hour12: false });
+                const end = new Date(entry.end).toLocaleTimeString('en-US', { hour12: false });
+                const duration = entry.duration.toFixed(2); // Limit to 2 decimal places
+                return `<p>Start: ${start}, End: ${end}, Duration: ${duration} sec</p>`;
+            }).join('');
+            document.getElementById('unfocused-count').innerText = unfocused_count;
+
+            // Calculate and display the total unfocused duration
+            const minutes = Math.floor(total_unfocused_duration / 60);
+            const seconds_raw = total_unfocused_duration % 60;
+            const seconds = seconds_raw.toFixed(2);
+            document.getElementById('total-duration').innerText = `${minutes} min ${seconds} sec`;
         });
     </script>
 
