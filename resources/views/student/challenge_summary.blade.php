@@ -92,9 +92,16 @@
                 <p id="total-duration" class="text-xs font-semibold">0 min 0 sec</p>
             </div>
         </div>
-        <div class="bg-sky-900 p-1.5 rounded-lg mt-1">
-            <p class="text-sm text-gray-300">History Log</p>
-            <p id="unfocused-timestamps" class="text-xs text-pink-400"></p>
+        <div class=" bg-transparent p-1.5 rounded-lg mt-1 w-1/2 mx-auto">
+            <p class="text-sm text-gray-300 bg-sky-950 p-1.5 rounded-lg">History Log</p>
+            <p id="unfocused-timestamps" class="text-xs mx-auto max-h-28 overflow-y-auto rounded-lg
+                [&::-webkit-scrollbar]:w-1
+                [&::-webkit-scrollbar-track]:rounded-full
+                [&::-webkit-scrollbar-track]:bg-gray-100
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                [&::-webkit-scrollbar-thumb]:bg-gray-300
+                dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+                dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"></p>
         </div>
         
 
@@ -156,7 +163,15 @@
                 const start = new Date(entry.start).toLocaleTimeString('en-US', { hour12: false });
                 const end = new Date(entry.end).toLocaleTimeString('en-US', { hour12: false });
                 const duration = entry.duration.toFixed(2); // Limit to 2 decimal places
-                return `<p>Start: ${start}, End: ${end}, Duration: ${duration} sec</p>`;
+                return `
+                    <div class=" bg-sky-900 p-1 rounded-lg my-0.5 shadow-md">
+                        <p class="text-gray-300 mt-1 text-center"><span class="font-semibold text-yellow-400">Duration:</span> ${duration} sec</p>
+                        <div class="flex justify-between text-gray-300 bg-gray-900 px-1.5 py-0.5 rounded-lg">
+                            <p><span class="font-semibold text-yellow-400">Start:</span> ${start}</p>
+                            <p><span class="font-semibold text-yellow-400">End:</span> ${end}</p>
+                        </div>
+                    </div>
+                `;
             }).join('');
             document.getElementById('unfocused-count').innerText = unfocused_count;
 
