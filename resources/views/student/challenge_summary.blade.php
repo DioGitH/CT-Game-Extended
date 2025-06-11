@@ -157,7 +157,6 @@
             const total_unfocused_duration = data.total_unfocused_duration;
             const unfocused_timestamps = data.unfocused_timestamps;
 
-            // Display the unfocused timestamps in the blade with improved formatting
             const timestampsContainer = document.getElementById('unfocused-timestamps');
             timestampsContainer.innerHTML = unfocused_timestamps.map(entry => {
                 const start = new Date(entry.start).toLocaleTimeString('en-US', { hour12: false });

@@ -253,6 +253,16 @@
         </div>
     </div>
 
+    <!-- **Modal Log Fokus** -->
+    <div id="log-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-yellow-500 p-6 rounded-lg text-center shadow-lg popUp">
+            <p class="text-xl font-semibold text-black"></p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <button onclick="$('#log-modal').addClass('hidden')" class="bg-gray-800 text-white px-4 py-2 rounded-lg">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- **Script Handling** -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -304,8 +314,9 @@
 
         // Peringatan tidak fokus
         socket.on("not_focused_warning", (data) => {
-            data = data.message;
-            alert(data);
+            // Set pesan ke modal log-modal
+            $("#log-modal p.text-xl").text(data.message);
+            $("#log-modal").removeClass("hidden");
         });
     </script>
     <script>
